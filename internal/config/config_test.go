@@ -259,7 +259,7 @@ func TestLoad_LocalModeEnabled(t *testing.T) {
 		raw  string
 		want bool
 	}{
-		{name: "defaults to true (local dev convenience)", raw: "", want: true},
+		{name: "defaults to false", raw: "", want: false},
 		{name: "explicit false (public multi-tenant deployment)", raw: "false", want: false},
 		{name: "explicit true", raw: "true", want: true},
 	}

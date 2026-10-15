@@ -31,12 +31,10 @@ func main() {
 	clusterID := requireEnv("CLUSTER_ID")
 	token := requireEnv("AGENT_TOKEN")
 
-	// Empty kubeconfig path => internal/k8s falls through to
-	// rest.InClusterConfig(), reading the ServiceAccount token
-	// Kubernetes automatically mounts into this Pod. This is the EXACT
-	// same k8s.NewClientset function main.go uses for the primary
-	// backend — no new client construction code needed.
-	clientset, err := k8s.NewClientset("", "")
+	// KUBECONFIG set => talk to that cluster from the machine the user
+	// copied the agent onto. Empty => in-cluster ServiceAccount, which
+	// is how the agent runs when it is a pod inside the cluster.
+	clientset, err := k8s.NewClientset(os.Getenv("KUBECONFIG"), os.Getenv("KUBE_CONTEXT"))
 	if err != nil {
 		log.Fatalf("agent: building in-cluster client: %v", err)
 	}

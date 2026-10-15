@@ -28,20 +28,36 @@ func main() {
 		log.Fatalf("config error: %v", err)
 	}
 
-	clientset, err := k8s.NewClientset(cfg.Kubeconfig, cfg.KubeContext)
-	if err != nil {
-		log.Fatalf("k8s client error: %v", err)
-	}
+	// clientset, err := k8s.NewClientset(cfg.Kubeconfig, cfg.KubeContext)
+	// if err != nil {
+	// 	log.Fatalf("k8s client error: %v", err)
+	// }
 
+	// serverVersion := ""
+	// if v, err := clientset.Discovery().ServerVersion(); err == nil {
+	// 	serverVersion = v.GitVersion
+	// } else {
+	// 	log.Printf("warning: could not fetch cluster server version: %v", err)
+	// }
+
+	// coll := collector.New(clientset, cfg.KubeContext, serverVersion)
+	var coll *collector.Collector
 	serverVersion := ""
-	if v, err := clientset.Discovery().ServerVersion(); err == nil {
-		serverVersion = v.GitVersion
+
+	if cfg.LocalModeEnabled {
+		clientset, err := k8s.NewClientset(cfg.Kubeconfig, cfg.KubeContext)
+		if err != nil {
+			log.Fatalf("k8s client error: %v", err)
+		}
+		if v, err := clientset.Discovery().ServerVersion(); err == nil {
+			serverVersion = v.GitVersion
+		} else {
+			log.Printf("warning: could not fetch cluster server version: %v", err)
+		}
+		coll = collector.New(clientset, cfg.KubeContext, serverVersion)
 	} else {
-		log.Printf("warning: could not fetch cluster server version: %v", err)
+		log.Println("LOCAL MODE disabled — skipping direct Kubernetes client initialization")
 	}
-
-	coll := collector.New(clientset, cfg.KubeContext, serverVersion)
-
 	// Store and AI client are OPTIONAL — this is the degraded-mode
 	// behavior required by the plan (Section 12: "works without LLM").
 	// We only construct them if their required config is present, and

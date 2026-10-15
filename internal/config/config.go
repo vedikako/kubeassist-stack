@@ -79,14 +79,12 @@ type Config struct {
 	// LocalModeEnabled controls whether THIS server's own configured
 	// cluster (via Kubeconfig/KubeContext) is exposed through the
 	// public API at all — GET /api/pods, /api/namespaces, /api/cluster,
-	// and the local (non-remote) troubleshoot routes. Defaults to true
-	// for local development convenience (this is exactly what every
-	// curl command we've run against Kind has exercised). MUST be set
-	// to false for any public multi-tenant deployment where the
-	// operator's own cluster should never be reachable by an
-	// unauthenticated visitor — in that mode, EVERY customer interacts
-	// exclusively through their own registered cluster + agent via
-	// /api/remote/{clusterId}/..., and never sees the operator's
+	// and the local (non-remote) troubleshoot routes. Defaults to false:
+	// the server does not open a direct Kubernetes client unless
+	// ENABLE_LOCAL_MODE=true. Set it true for a local Kind demo. Leave
+	// it false for a public multi-tenant deployment, where every
+	// customer interacts through their own registered cluster + agent
+	// via /api/remote/{clusterId}/... and never sees the operator's
 	// cluster at all.
 	LocalModeEnabled bool
 
@@ -138,7 +136,7 @@ func Load() (*Config, error) {
 		AgentTokens:      parseAgentTokens(os.Getenv("AGENT_TOKENS")),
 		RelayEnabled:     getEnvOrDefault("ENABLE_RELAY", "false") == "true",
 		RelayPublicURL:   getEnvOrDefault("RELAY_PUBLIC_URL", "ws://localhost:8080/agent/connect"),
-		LocalModeEnabled: getEnvOrDefault("ENABLE_LOCAL_MODE", "true") == "true",
+		LocalModeEnabled: getEnvOrDefault("ENABLE_LOCAL_MODE", "false") == "true",
 		CORSAllowedOrigins: parseOrigins(getEnvOrDefault(
 			"CORS_ALLOWED_ORIGINS",
 			"http://localhost:5173,http://localhost:3000",
