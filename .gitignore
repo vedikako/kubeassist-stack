@@ -1,0 +1,16 @@
+.env
+node_modules/
+frontend/dist/
+frontend/node_modules/
+*.log
+.DS_Store
+__pycache__/
+.venv/
+*.npy
+.pytest_cache/
+
+# Junctions point at sibling repos — do not vendor their trees into this hub's git
+# (hub commits glue only: compose, frontend, docs, scripts, Dockerfile.ai)
+backend-go/
+ai-service/
+schemas/
